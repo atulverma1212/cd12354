@@ -65,6 +65,5 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          pipenv install
           docker build --tag mp-backend:latest .
         working-directory: ./starter/backend
