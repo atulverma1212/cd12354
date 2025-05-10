@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  VERSION_3_10: 3.10
+  VERSION_3_10: "3.10"
 
 jobs:
   lint:
