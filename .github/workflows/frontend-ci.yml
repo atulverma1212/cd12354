@@ -68,7 +68,7 @@ jobs:
         working-directory: ./starter/frontend
 
       - name: npm test
-        run: CI=true npm test
+        run: npm test
         working-directory: ./starter/frontend
 
   build:
