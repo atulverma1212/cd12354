@@ -1,10 +1,9 @@
 name: Frontend CI
 
 on:
-  pull_request:
+  push:
     branches:
       - main
-    types: [ opened ]
     paths:
       - 'starter/frontend/**'
   workflow_dispatch:

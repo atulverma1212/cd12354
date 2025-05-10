@@ -1,13 +1,15 @@
 name: Backend CI
 
 on:
-  pull_request:
+  push:
     branches:
       - main
-    types: [ opened ]
     paths:
       - 'starter/backend/**'
   workflow_dispatch:
+
+env:
+  VERSION_3_10: 3.10
 
 jobs:
   lint:
@@ -19,7 +21,15 @@ jobs:
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
-          python-version: "3.10"
+          python-version: ${{ env.VERSION_3_10 }}
+
+      - name: Cache pipenv dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ env.VERSION_3_10 }}-${{ hashFiles('starter/backend/Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-${{ env.VERSION_3_10 }}-
 
       - name: Install pipenv
         run: |
@@ -42,7 +52,15 @@ jobs:
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
-          python-version: "3.10"
+          python-version: ${{ env.VERSION_3_10 }}
+
+      - name: Cache pipenv dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ env.VERSION_3_10 }}-${{ hashFiles('starter/backend/Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pipenv-${{ env.VERSION_3_10 }}-
 
       - name: Install pipenv
         run: |
