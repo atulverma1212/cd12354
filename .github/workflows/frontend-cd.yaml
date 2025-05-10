@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  REACT_APP_MOVIE_API_URL: "http://backend"
+  REACT_APP_MOVIE_API_URL: ""
 
 jobs:
   lint:
@@ -86,9 +86,22 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+
+      - name: Get backend service URL
+        id: get-backend-url
+        run: |
+          # Get the backend service details using kubectl
+          BACKEND_HOSTNAME=$(kubectl get svc backend -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          echo "backend_url=http://${BACKEND_HOSTNAME}" >> $GITHUB_OUTPUT
+          echo "REACT_APP_MOVIE_API_URL=http://${BACKEND_HOSTNAME}" >> $GITHUB_ENV
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: true
 
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
@@ -99,7 +112,7 @@ jobs:
         run: |
           docker build --build-arg REACT_APP_MOVIE_API_URL=${{ env.REACT_APP_MOVIE_API_URL }} -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
         working-directory: ./starter/frontend
 
   deploy:
@@ -119,6 +132,8 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: true
 
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
