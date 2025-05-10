@@ -52,7 +52,7 @@ jobs:
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
-          python-version: {{env.VERSION_3_10}}
+          python-version: ${{env.VERSION_3_10}}
 
       - name: Cache pipenv dependencies
         uses: actions/cache@v3
